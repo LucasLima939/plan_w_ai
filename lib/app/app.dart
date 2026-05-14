@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'models/quadro_model.dart';
@@ -177,7 +178,8 @@ class _AppState extends State<App> {
       home: Scaffold(
         backgroundColor: _bg,
         body: SafeArea(
-          child: SingleChildScrollView(
+          child: _buildScrollable(
+            isMobilePlatform: _isMobilePlatform,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final isNarrow = constraints.maxWidth < 980;
@@ -214,6 +216,34 @@ class _AppState extends State<App> {
           ),
         ),
       ),
+    );
+  }
+
+  bool get _isMobilePlatform =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
+
+  Widget _buildScrollable({
+    required bool isMobilePlatform,
+    required Widget child,
+  }) {
+    final scrollView = SingleChildScrollView(
+      physics: isMobilePlatform
+          ? const AlwaysScrollableScrollPhysics()
+          : null,
+      child: child,
+    );
+
+    if (!isMobilePlatform) {
+      return scrollView;
+    }
+
+    return RefreshIndicator(
+      color: _accent,
+      backgroundColor: _surface,
+      onRefresh: carregarHistorico,
+      child: scrollView,
     );
   }
 
